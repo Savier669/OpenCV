@@ -24,6 +24,7 @@ def colour_filter(hsvImage):
     return mask
 
 lowerLimit, upperLimit = get_limit(color)
+kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5))
 
 while cap.isOpened():
     ret,frame = cap.read()
@@ -33,8 +34,14 @@ while cap.isOpened():
 
     hsvImage = cv.cvtColor(blurred_frame, cv.COLOR_BGR2HSV)
     
-    mask =  colour_filter(hsvImage)
-    contours,_ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    raw_mask =  colour_filter(hsvImage)
+
+    clean_mask = cv.morphologyEx(raw_mask, cv.MORPH_OPEN, kernel)
+
+
+
+
+    contours,_ = cv.findContours(clean_mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
          if cv.contourArea(contour) > 500:
@@ -43,7 +50,7 @@ while cap.isOpened():
 
     
     cv.imshow("live feed", frame)
-    cv.imshow("mask", mask)
+    cv.imshow("mask", clean_mask)
 
     if cv.waitKey(1) & 0xff == ord("q"):
             break
