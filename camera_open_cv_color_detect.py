@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 from pathlib import Path
-from PIL import Image
 
 cap = cv.VideoCapture(0)
 color = [0, 128, 0] #green
@@ -35,11 +34,12 @@ while cap.isOpened():
     
     mask =  colour_filter(hsvImage)
     mask_ = Image.fromarray(mask)
-    boundaries = mask_.getbbox()
+    countors = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
-    if boundaries is not None:
-         x1, y1, x2, y2 = boundaries
-         frame =  cv.rectangle(frame, (x1,y1), (x2,y2), (0,0, 255), 5)
+    for contour in contours:
+         if cv.contourArea(contour) > 500:
+              x, y, w, h = cv.boundingRect(contour)
+              cv.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 5)
 
     
     cv.imshow("live feed", frame)
