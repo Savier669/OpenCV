@@ -29,12 +29,12 @@ while cap.isOpened():
     ret,frame = cap.read()
     if not ret:
         break
+    blurred_frame = cv.GaussianBlur(frame, (11, 11), 0)
 
-    hsvImage = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+    hsvImage = cv.cvtColor(blurred_frame, cv.COLOR_BGR2HSV)
     
     mask =  colour_filter(hsvImage)
-    mask_ = Image.fromarray(mask)
-    countors = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    contours,_ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
          if cv.contourArea(contour) > 500:
