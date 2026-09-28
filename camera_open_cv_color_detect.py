@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 from pathlib import Path
+from PIL import Image
 
 cap = cv.VideoCapture(0)
 color = [0, 128, 0] #green
@@ -9,12 +10,12 @@ def get_limit(color):
     c = np.uint8([[color]])
     hsvc = cv.cvtColor(c, cv.COLOR_BGR2HSV)
     hue = hsvc[0][0][0]
-    range = 10
+    range = 12
 
     upper_hue = min( 179, hue + range)
     lower_hue = max( 0, hue - range)
 
-    lowerLimit = np.array([lower_hue, 40, 40], dtype=np.uint8)
+    lowerLimit = np.array([lower_hue, 40, 30], dtype=np.uint8)
     upperLimit = np.array([upper_hue, 255, 255], dtype=np.uint8)
 
     return lowerLimit, upperLimit
@@ -33,6 +34,13 @@ while cap.isOpened():
     hsvImage = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     
     mask =  colour_filter(hsvImage)
+    mask_ = Image.fromarray(mask)
+    boundaries = mask_.getbbox()
+
+    if boundaries is not None:
+         x1, y1, x2, y2 = boundaries
+         frame =  cv.rectangle(frame, (x1,y1), (x2,y2), (0,0, 255), 5)
+
     
     cv.imshow("live feed", frame)
     cv.imshow("mask", mask)
